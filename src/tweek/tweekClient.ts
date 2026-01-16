@@ -28,9 +28,11 @@ import {
   isTaskListResponse,
   isTaskResponse,
   mapCalendarListResponse,
+  mapCreateTaskToApi,
   mapCustomColorsResponse,
   mapTask,
   mapTaskListResponse,
+  mapTaskPatchToApi,
 } from './mappers.js'
 
 /**
@@ -204,7 +206,9 @@ export class TweekClient {
       const idToken = await this.authManager.getValidIdToken()
       this.httpClient.setAuthorizationHeader(idToken)
 
-      const response = await this.httpClient.post<{ id: string }>('/tasks', taskData)
+      // Map MCP field names to API field names (title->text, description->note, completed->done)
+      const apiTaskData = mapCreateTaskToApi(taskData)
+      const response = await this.httpClient.post<{ id: string }>('/tasks', apiTaskData)
 
       if (response.data == null || typeof response.data.id !== 'string') {
         throw new HttpError(
@@ -239,7 +243,9 @@ export class TweekClient {
       const idToken = await this.authManager.getValidIdToken()
       this.httpClient.setAuthorizationHeader(idToken)
 
-      const response = await this.httpClient.patch<TweekApiTask>(`/tasks/${taskId}`, patch)
+      // Map MCP field names to API field names (title->text, description->note, completed->done)
+      const apiPatch = mapTaskPatchToApi(patch)
+      const response = await this.httpClient.patch<TweekApiTask>(`/tasks/${taskId}`, apiPatch)
 
       if (!isTaskResponse(response.data)) {
         throw new HttpError(
