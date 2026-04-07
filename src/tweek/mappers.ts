@@ -5,10 +5,12 @@
 import type {
   Calendar,
   CalendarListResponse,
+  CreateTaskRequest,
   CustomColor,
   CustomColorsResponse,
   Task,
   TaskListResponse,
+  TaskPatch,
   TweekApiCalendar,
   TweekApiCustomColor,
   TweekApiTask,
@@ -130,6 +132,103 @@ export function mapCustomColorsResponse(apiResponse: { colors: TweekApiCustomCol
   return {
     colors: apiResponse.colors.map(mapCustomColor),
   }
+}
+
+/**
+ * Maps a CreateTaskRequest to the format expected by the Tweek API
+ */
+export function mapCreateTaskToApi(task: CreateTaskRequest): Record<string, unknown> {
+  const apiTask: Record<string, unknown> = {
+    calendarId: task.calendarId,
+    text: task.title, // MCP uses 'title', API expects 'text'
+    done: task.completed ?? false, // API requires 'done' field, default to false
+    gcal: false, // API requires 'gcal' field, this is not a Google Calendar task
+  }
+
+  if (task.description !== undefined) {
+    apiTask.note = task.description // MCP uses 'description', API expects 'note'
+  }
+  if (task.date !== undefined) {
+    apiTask.date = task.date
+  }
+  if (task.isoDate !== undefined) {
+    apiTask.isoDate = task.isoDate
+  }
+  if (task.dtStart !== undefined) {
+    apiTask.dtStart = task.dtStart
+  }
+  if (task.notifyAt !== undefined) {
+    apiTask.notifyAt = task.notifyAt
+  }
+  if (task.freq !== undefined) {
+    apiTask.freq = task.freq
+  }
+  if (task.checklist !== undefined) {
+    apiTask.checklist = task.checklist.map(item => ({
+      text: item.text,
+      done: item.completed, // MCP uses 'completed', API expects 'done'
+    }))
+  }
+  if (task.priority !== undefined) {
+    apiTask.priority = task.priority
+  }
+  if (task.tags !== undefined) {
+    apiTask.tags = task.tags
+  }
+  if (task.color !== undefined) {
+    apiTask.color = task.color
+  }
+
+  return apiTask
+}
+
+/**
+ * Maps a TaskPatch to the format expected by the Tweek API
+ */
+export function mapTaskPatchToApi(patch: TaskPatch): Record<string, unknown> {
+  const apiPatch: Record<string, unknown> = {}
+
+  if (patch.title !== undefined) {
+    apiPatch.text = patch.title // MCP uses 'title', API expects 'text'
+  }
+  if (patch.description !== undefined) {
+    apiPatch.note = patch.description // MCP uses 'description', API expects 'note'
+  }
+  if (patch.completed !== undefined) {
+    apiPatch.done = patch.completed // MCP uses 'completed', API expects 'done'
+  }
+  if (patch.date !== undefined) {
+    apiPatch.date = patch.date
+  }
+  if (patch.isoDate !== undefined) {
+    apiPatch.isoDate = patch.isoDate
+  }
+  if (patch.dtStart !== undefined) {
+    apiPatch.dtStart = patch.dtStart
+  }
+  if (patch.notifyAt !== undefined) {
+    apiPatch.notifyAt = patch.notifyAt
+  }
+  if (patch.freq !== undefined) {
+    apiPatch.freq = patch.freq
+  }
+  if (patch.checklist !== undefined) {
+    apiPatch.checklist = patch.checklist.map(item => ({
+      text: item.text,
+      done: item.completed, // MCP uses 'completed', API expects 'done'
+    }))
+  }
+  if (patch.priority !== undefined) {
+    apiPatch.priority = patch.priority
+  }
+  if (patch.tags !== undefined) {
+    apiPatch.tags = patch.tags
+  }
+  if (patch.color !== undefined) {
+    apiPatch.color = patch.color
+  }
+
+  return apiPatch
 }
 
 /**

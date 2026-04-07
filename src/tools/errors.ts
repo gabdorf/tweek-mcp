@@ -13,7 +13,8 @@ import { ValidationError } from './validation.js'
  */
 export function wrapToolError(error: unknown, operation: string): Error {
   if (error instanceof HttpError) {
-    return new Error(`HTTP error (${error.type}): ${error.message}`, { cause: error })
+    const responseDetails = error.response ? ` - Response: ${JSON.stringify(error.response)}` : ' - No response body'
+    return new Error(`Failed to ${operation}: HTTP error (${error.type}): ${error.message}${responseDetails}`, { cause: error })
   }
 
   if (error instanceof ValidationError) {
